@@ -3,17 +3,19 @@ package com.ubongo.dataTransfer;
 
 import java.io.Serializable;
 
-public class GsonPackageData implements Serializable {
+public class RequestPackage implements Serializable {
     private int id;
     private String name;
     private String pin;
     private String difficulty;
+    private boolean ownerStatus;
 
-    public GsonPackageData(int id, String name, String pin, String difficulty) {
+    public RequestPackage(int id, String name, String pin, String difficulty, boolean ownerStatus) {
         this.id = id;
         this.name = name;
         this.pin = pin;
         this.difficulty = difficulty;
+        this.ownerStatus = ownerStatus;
     }
 
     public int getId() {
@@ -32,6 +34,10 @@ public class GsonPackageData implements Serializable {
         return difficulty;
     }
 
+    public boolean getOwnerStatus(){
+        return ownerStatus;
+    }
+
     public void setName(String value) {
         this.name = name;
     }
@@ -46,6 +52,10 @@ public class GsonPackageData implements Serializable {
 
     public void setDifficulty(String difficulty) {
         this.difficulty = difficulty;
+    }
+
+    public void setOwnerStatus(boolean ownerStatus){
+        this.ownerStatus = ownerStatus;
     }
 
 }
