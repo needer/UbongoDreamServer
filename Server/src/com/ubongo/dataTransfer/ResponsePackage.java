@@ -1,7 +1,9 @@
 package com.ubongo.dataTransfer;
 
 
-public class ResponsePackage {
+import java.io.Serializable;
+
+public class ResponsePackage implements Serializable {
     private int id;
     private int responseStatus;
     private String responseContent;
