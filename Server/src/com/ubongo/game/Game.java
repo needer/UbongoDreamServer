@@ -8,14 +8,13 @@ import java.util.ArrayList;
 
 public class Game {
     private ArrayList<Player> players;
-    private ArrayList<PrintWriter> printWriters;
     private int difficulty;
     private int board;
     private boolean status;
 
+
     public Game() {
         this.players = new ArrayList<Player>();
-        this.printWriters = new ArrayList<PrintWriter>();
         this.difficulty = 0; // by default easy difficult
         this.status = false;
     }
@@ -53,7 +52,7 @@ public class Game {
     }
 
 
-    public void addPlayer(String name, PrintWriter out) {
-        players.add(new Player(name, out));
+    public void addPlayer(String name, boolean ownerStatus, PrintWriter out) {
+        players.add(new Player(name, ownerStatus, out));
     }
 }
