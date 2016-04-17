@@ -10,6 +10,7 @@ public class RequestPackage implements Serializable {
     private String difficulty;
     private boolean ownerStatus;
 
+
     public RequestPackage(int id, String name, String pin, String difficulty, boolean ownerStatus) {
         this.id = id;
         this.name = name;
@@ -34,7 +35,7 @@ public class RequestPackage implements Serializable {
         return difficulty;
     }
 
-    public boolean getOwnerStatus(){
+    public boolean getOwnerStatus() {
         return ownerStatus;
     }
 
@@ -54,7 +55,7 @@ public class RequestPackage implements Serializable {
         this.difficulty = difficulty;
     }
 
-    public void setOwnerStatus(boolean ownerStatus){
+    public void setOwnerStatus(boolean ownerStatus) {
         this.ownerStatus = ownerStatus;
     }
 

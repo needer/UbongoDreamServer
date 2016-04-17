@@ -33,19 +33,19 @@ public class ResponsePackage implements Serializable {
         this.responseStatus = responseStatus;
     }
 
-    public String getResponseContent(){
+    public String getResponseContent() {
         return responseContent;
     }
 
-    public void setResponseContent(String responseContent){
+    public void setResponseContent(String responseContent) {
         this.responseContent = responseContent;
     }
 
-    public String getResponseError(){
+    public String getResponseError() {
         return responseError;
     }
 
-    public void setResponseError(String responseError){
+    public void setResponseError(String responseError) {
         this.responseError = responseError;
     }
 }
