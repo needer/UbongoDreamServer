@@ -82,7 +82,7 @@ public class GameHolder {
     public void finishGame(String name, String pin, PrintWriter out, int callId) {
         /**
          * send the winner name to everyone
-         * after the call check the if empty delete the game.
+         * after the call check the if empty delete the game. // changes: after just delete the game
          */
         System.out.println("\nCalled method: 'Finish Game. Arguments: Name " + name + ", Pin " + pin);
         Game game = games.get(pin);
@@ -91,15 +91,27 @@ public class GameHolder {
             for (Map.Entry m : games.entrySet()) {
                 System.out.println(m.getKey() + " " + m.getValue().toString());
             }
-            out.println("");
+            System.out.println("Sending back Response Status 404 : Could NOT find such game. Please check the PIN ...");
+            ResponsePackage responsePackage = new ResponsePackage(callId, 404, null, "Could NOT find such game. Please check the PIN!");
+            String json = gson.toJson(responsePackage);
+            out.println(json);
             out.flush();
-        } else {
+        }
+        else if (!game.getStatus()){
+            System.out.println("Game with specified PIN is not even started ...");
+            System.out.println("Sending back Response Status 404 : Game with specified PIN is not even started ...");
+            ResponsePackage responsePackage = new ResponsePackage(callId, 404, null, "Game with specified PIN is not even started");
+            String json = gson.toJson(responsePackage);
+            out.println(json);
+            out.flush();
+        }
+        else {
             System.out.print("Game exists. Current players are ...  ");
             for (Player player : game.getPlayers()) {
                 System.out.print(player.getName() + ".. ");
             }
 
-            System.out.println("\nNotifying everyone");
+            System.out.println("\nNotifying everyone ...");
             ResponsePackage responsePackage = new ResponsePackage(callId, 200, name, null);
             String json = gson.toJson(responsePackage);
             for (Player player : game.getPlayers()) {
@@ -107,8 +119,8 @@ public class GameHolder {
                 player.getOut().flush();
             }
 
-            System.out.println("Deleting the Game");
-            games.remove(pin); // perhaps another action should be done here
+            System.out.println("Deleting the Game ...");
+            games.remove(pin);
         }
         System.out.println("Done ...");
     }
@@ -117,6 +129,7 @@ public class GameHolder {
         /**
          * take out this guy out of the Array List
          * after the call check the players vector, if empty delete the game
+         * notify all - send list of players name
          */
         System.out.println("\nCalled method: 'Leave Game'. Arguments: Name " + name + ", Pin " + pin);
         Game game = games.get(pin);
@@ -125,14 +138,17 @@ public class GameHolder {
             for (Map.Entry m : games.entrySet()) {
                 System.out.println(m.getKey() + " " + m.getValue().toString());
             }
-            out.println("");
+            System.out.println("Sending back Response Status 404 : Could NOT find such game. Please check the PIN ...");
+            ResponsePackage responsePackage = new ResponsePackage(callId, 404, null, "Could NOT find such game. Please check the PIN!");
+            String json = gson.toJson(responsePackage);
+            out.println(json);
             out.flush();
         } else {
             System.out.print("Game exists. Current players are ...  ");
             for (Player player : game.getPlayers()) {
                 System.out.print(player.getName() + ".. ");
             }
-
+            // check player exist or not before delete. NO error but players are getting notification eith no difference
             System.out.println("\nDeleting the player .. " + name);
             for (Player player : game.getPlayers()) {
                 if (player.getName().equals(name)) {
@@ -140,12 +156,25 @@ public class GameHolder {
                     break;
                 }
             }
-            ResponsePackage responsePackage = new ResponsePackage(callId, 200, name, null);
-            String json = gson.toJson(responsePackage);
-
-            System.out.println("Checking and deleting the Game if there is NO player");
-            if (game.getPlayers().size() == 0)
+            System.out.println("Checking and deleting the Game if there is NO player ...");
+            if (game.getPlayers().size() == 0){
                 games.remove(pin);
+                System.out.println("Game is deleted ...");
+            }
+            else{
+                System.out.println("Game still has players ...");
+                System.out.println("Notifying everyone ...");
+                ArrayList<String> playersName = new ArrayList<String>();
+                for (Player player : game.getPlayers()) {
+                    playersName.add(player.getName());
+                }
+                ResponsePackage responsePackage = new ResponsePackage(callId, 200, playersName.toString(), null);
+                String json = gson.toJson(responsePackage);
+                for (Player player : game.getPlayers()) {
+                    player.getOut().println(json);
+                    player.getOut().flush();
+                }
+            }
         }
         System.out.println("Done ...");
     }
@@ -227,10 +256,11 @@ public class GameHolder {
 
     public void removePlayer(String name, String pin, PrintWriter out, int callId) {
         /**
+         * this method can be called only before starting the game
          * take out this guy out of the vector
          * after the call check the players vector, if empty delete the game
          * if not empty then notify all the players send ArrayList<String>
-         *     if owner removes, notify all the players (some key value)
+         *     if owner removes, notify all the players (some key value), remove the game
          */
         System.out.println("\nCalled method: 'Remove Player'. Arguments: Name " + name + ", Pin " + pin);
         Game game = games.get(pin);
@@ -239,16 +269,79 @@ public class GameHolder {
             for (Map.Entry m : games.entrySet()) {
                 System.out.println(m.getKey() + " " + m.getValue().toString());
             }
-            out.println("");
+            System.out.println("Sending back Response Status 404 : Could NOT find such game. Please check the PIN ...");
+            ResponsePackage responsePackage = new ResponsePackage(callId, 404, null, "Could NOT find such game. Please check the PIN!");
+            String json = gson.toJson(responsePackage);
+            out.println(json);
             out.flush();
-        } else {
+        }
+        else {
             System.out.print("Game exists. Current players are ...  ");
             for (Player player : game.getPlayers()) {
                 System.out.print(player.getName() + ".. ");
             }
-            // TBA
-            ResponsePackage responsePackage = new ResponsePackage(callId, 200, "", null);
-            String json = gson.toJson(responsePackage);
+
+            System.out.println("\nChecking the owner status ...  ");
+            boolean flag = false;
+            System.out.println("Looking for player in the system ...");
+            for (Player player : game.getPlayers()) {
+                if (player.getName().equals(name)) {
+                    System.out.println("Found the player ...");
+                    flag = true;
+                    System.out.println("Checking player status ...");
+                    if (player.getOwnerStatus()) {
+                        System.out.println("Owner wants to leave the game before starting it ...");
+
+                        System.out.println("Deleting the player .. " + name);
+                        game.getPlayers().remove(player);
+
+                        System.out.println("Notifying everyone ...");
+                        ResponsePackage responsePackage = new ResponsePackage(callId, 200, "Owner left", null);
+                        String json = gson.toJson(responsePackage);
+                        for (Player p : game.getPlayers()) {
+                            p.getOut().println(json);
+                            p.getOut().flush();
+                        }
+
+                        System.out.println("Deleting the Game ...");
+                        games.remove(pin);
+                    }
+                    else {
+                        System.out.println("Player wants to leave before game started is not the owner ...");
+                        System.out.println("\nDeleting the player .. " + name);
+                        game.getPlayers().remove(player);
+
+                        // owner should be, but anyway check
+                        System.out.println("Checking and deleting the Game if there is NO player ...");
+                        if (game.getPlayers().size() == 0){
+                            games.remove(pin);
+                            System.out.println("Game is deleted ...");
+                        }
+                        else{
+                            System.out.println("Game still has players ...");
+                            System.out.println("Notifying everyone about player left ...");
+                            ArrayList<String> playersName = new ArrayList<String>();
+                            for (Player p : game.getPlayers()) {
+                                playersName.add(p.getName());
+                            }
+                            ResponsePackage responsePackage = new ResponsePackage(callId, 200, playersName.toString(), null);
+                            String json = gson.toJson(responsePackage);
+                            for (Player p : game.getPlayers()) {
+                                p.getOut().println(json);
+                                p.getOut().flush();
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+            if (!flag) {
+                System.out.println("Could not find such player in specified game ...");
+                System.out.println("Sending back Response Status 404 : Could NOT find such player in specified game ...");
+                ResponsePackage responsePackage = new ResponsePackage(callId, 404, null, "Could NOT find such player in specified game!");
+                String json = gson.toJson(responsePackage);
+                out.println(json);
+            }
         }
         System.out.println("Done ...");
     }
