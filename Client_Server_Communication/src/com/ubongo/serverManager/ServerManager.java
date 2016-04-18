@@ -1,5 +1,6 @@
 package com.ubongo.serverManager;
 
+
 import android.os.AsyncTask;
 import com.ubongo.config.Config;
 import com.ubongo.dataTransfer.RequestPackage;
@@ -22,11 +23,9 @@ public class ServerManager extends AsyncTask<Void, Void, Void> {
 
 
     private PrintWriter out;
-    private BufferedReader in;
     private Gson gson;
 
     private ServerManager() {
-
     }
 
     @Override
@@ -35,26 +34,16 @@ public class ServerManager extends AsyncTask<Void, Void, Void> {
         return null;
     }
 
-    /*@Override
-    public void callbackMessageReceiver(String message) {
-        publishProgress(message);
-    }
-    @Override
-   protected void onPostExecute(Void result) {
-      textResponse.setText(response);
-      super.onPostExecute(result);
-   }
-   */
     public void connect() {
         try {
             //connect to server
-            InetAddress serverAddr = InetAddress.getByName(Config.HOST);
-            Socket socket = new Socket(serverAddr, Config.PORT);
+            InetAddress serverAddress = InetAddress.getByName(Config.HOST);
+            Socket socket = new Socket(serverAddress, Config.PORT);
             gson = new Gson();
 
             //open text oriented input and output channels
             out = new PrintWriter(socket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             try {
                 while (true) {
@@ -109,12 +98,6 @@ public class ServerManager extends AsyncTask<Void, Void, Void> {
             e.printStackTrace();
         }
     }
-
-    /**
-     * owner status needs only for start Game call. if we
-     * change it and rely on client side more, then
-     * can escape few checks in server side
-     */
 
 
     public void startLobby(String name) { //name argument needs only for logging on the server side, to see who is creating
